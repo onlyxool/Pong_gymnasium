@@ -1,5 +1,4 @@
 import sys
-import torch
 import warnings
 import numpy as np
 import gymnasium as gym
@@ -11,24 +10,27 @@ from torch.utils.tensorboard import SummaryWriter
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
-batch_size = 8
-update_rate = 10
+batch_size = 64
+update_rate = 1000
 epsilon_min = 0.05
 epsilon_decay = 0.995
 gamma = 0.95
 epsilon_init = 1.0
 episode_rewards = list()
 
-
 def main():
     training_mode = True if len(sys.argv) >= 2 and sys.argv[1] == 'train' else False
     episodes = int(sys.argv[2]) if training_mode else 5
     env = FrameStack(gym.make('ALE/Pong-v5', render_mode='rgb_array' if training_mode else 'human'), num_stack=4)
+    if not training_mode:
+        env.metadata['render_fps'] = 60
+
+    model_path = f'model/pong_batch{batch_size}_rate{update_rate}_ep{episodes}.pth'
     writer = SummaryWriter()
 
     agent = Agent(env, epsilon_init, batch_size, gamma, training_mode)
     if training_mode:
-        for episode in range(episodes):
+        for episode in range(1, episodes):
             terminate = False
             while not terminate:
                 agent.epsilon = agent.epsilon*epsilon_decay if agent.epsilon >= epsilon_min else epsilon_min
@@ -38,13 +40,13 @@ def main():
                     episode_rewards.append(reward)
                     mean_reward = round(np.mean(episode_rewards[-100:]),3)
                     print(f"episode {episode}, mean reward: {mean_reward}\n")
-            if episode % update_rate == 0:
-                agent.update_weights()
+                if len(agent.replay_memory) >= update_rate:
+                    agent.update_weights()
 
         writer.flush()
-        torch.save(agent.model.state_dict(), f'model/pong_batch{batch_size}_rate{update_rate}.pth')
+        agent.save(model_path)
     else:
-        agent.demo()
+        agent.demo(model_path)
 
     env.close()
 

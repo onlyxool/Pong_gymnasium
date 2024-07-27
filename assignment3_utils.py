@@ -19,7 +19,7 @@ def to_grayscale(img):
 def normalize_grayscale(img):
     return (img - 128) / 128 - 1  
 
-def process_frame(img, image_shape):
+def process_frame(img):
     img = np.array(img)
     img = img_crop(img)
     img = downsample(img)    # Crop and downsize (by 2)
