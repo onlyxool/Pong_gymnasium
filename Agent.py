@@ -33,7 +33,7 @@ class Agent:
         self.gamma = gamma
         self.epsilon = start_epsilon
         self.batch_size = batch_size
-        self.replay_memory = ReplayMemory(1000)
+        self.replay_memory = ReplayMemory(10000)
         self.model = DQN((4, 84, 80), env.action_space.n).to(device)
         self.target_model = DQN((4, 84, 80), env.action_space.n).to(device)
         self.train_mode = mode
