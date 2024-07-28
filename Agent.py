@@ -138,3 +138,24 @@ class Agent:
 
     def load(self, path):
         self.model.load_state_dict(torch.load(path))
+
+
+    def save_checkpoint(self, episode):
+        checkpoint = {
+            'episode': episode,
+            'model_state_dict': self.model.state_dict(),
+            'optimizer_state_dict': self.optimizer.state_dict(),
+            'replay_memory': self.replay_memory,
+            'epsilon': self.epsilon
+        }
+        torch.save(checkpoint, f'model/checkpoint.pth')
+        print(f'Checkpoint saved at episode {episode}')
+
+
+    def load_checkpoint(self, filename):
+        checkpoint = torch.load(filename)
+        self.model.load_state_dict(checkpoint['model_state_dict'])
+        self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        self.replay_memory = checkpoint['replay_memory']
+        self.epsilon = checkpoint['epsilon']
+        return checkpoint['episode']

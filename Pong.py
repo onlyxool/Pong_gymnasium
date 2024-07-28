@@ -1,3 +1,4 @@
+import os
 import sys
 import warnings
 import numpy as np
@@ -29,6 +30,9 @@ def main():
     writer = SummaryWriter()
 
     agent = Agent(env, epsilon_init, batch_size, gamma, training_mode)
+    if training_mode and len(sys.argv) >= 4 and os.path.exists(sys.argv[3]):
+        agent.load_checkpoint(sys.argv[3])
+
     if training_mode:
         for episode in range(1, episodes):
             terminate = False
@@ -42,6 +46,9 @@ def main():
                     print(f"episode {episode}, mean reward: {mean_reward}\n")
                 if len(agent.replay_memory) >= update_rate:
                     agent.update_weights()
+
+            if episode % 10 == 0:
+                agent.save_checkpoint(episode)
 
         writer.flush()
         agent.save(model_path)
