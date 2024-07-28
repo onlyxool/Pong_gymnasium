@@ -144,6 +144,7 @@ class Agent:
         checkpoint = {
             'episode': episode,
             'model_state_dict': self.model.state_dict(),
+            'target_state_dict': self.target_model.state_dict(),
             'optimizer_state_dict': self.optimizer.state_dict(),
             'replay_memory': self.replay_memory,
             'epsilon': self.epsilon
@@ -155,6 +156,7 @@ class Agent:
     def load_checkpoint(self, filename):
         checkpoint = torch.load(filename)
         self.model.load_state_dict(checkpoint['model_state_dict'])
+        self.target_model.load_state_dict(checkpoint['target_state_dict'])
         self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         self.replay_memory = checkpoint['replay_memory']
         self.epsilon = checkpoint['epsilon']

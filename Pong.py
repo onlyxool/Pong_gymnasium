@@ -11,13 +11,15 @@ from torch.utils.tensorboard import SummaryWriter
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
-batch_size = 64
-update_rate = 1000
+batch_size = 8
+update_rate = 10
 epsilon_min = 0.05
 epsilon_decay = 0.995
 gamma = 0.95
 epsilon_init = 1.0
 episode_rewards = list()
+ave_rewards = list()
+
 
 def main():
     training_mode = True if len(sys.argv) >= 2 and sys.argv[1] == 'train' else False
@@ -40,9 +42,12 @@ def main():
                 agent.epsilon = agent.epsilon*epsilon_decay if agent.epsilon >= epsilon_min else epsilon_min
                 terminate, reward = agent.train()
                 if terminate:
-                    writer.add_scalar('reward/episode', reward, episode)
                     episode_rewards.append(reward)
-                    mean_reward = round(np.mean(episode_rewards[-100:]),3)
+                    mean_reward = round(np.mean(episode_rewards[-5:]), 3)
+                    ave_rewards.append(mean_reward)
+                    writer.add_scalar('Reward/Episode', reward, episode)
+                    writer.add_scalar('Average_Cumulative_Reward/Last_5_Episodes', mean_reward, episode)
+
                     print(f"episode {episode}, mean reward: {mean_reward}\n")
                 if len(agent.replay_memory) >= update_rate:
                     agent.update_weights()
@@ -52,6 +57,8 @@ def main():
 
         writer.flush()
         agent.save(model_path)
+        np.save(f'episode_rewards_batch{batch_size}_rate{update_rate}.npy', np.array(episode_rewards))
+        np.save(f'ave_rewards_batch{batch_size}_rate{update_rate}.npy', np.array(ave_rewards))
     else:
         agent.demo(model_path)
 
