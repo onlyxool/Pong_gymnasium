@@ -29,11 +29,19 @@ def main():
         env.metadata['render_fps'] = 60
 
     model_path = f'model/pong_batch{batch_size}_rate{update_rate}_ep{episodes}.pth'
+    rewards_path = f'model/episode_rewards_batch{batch_size}_rate{update_rate}.npy'
+    ave_rewards_path = f'model/ave_rewards_batch{batch_size}_rate{update_rate}.npy'
     writer = SummaryWriter()
 
     agent = Agent(env, epsilon_init, batch_size, gamma, training_mode)
     if training_mode and len(sys.argv) >= 4 and os.path.exists(sys.argv[3]):
         agent.load_checkpoint(sys.argv[3])
+        try:
+            episode_rewards = np.load(rewards_path).to_list()
+            ave_rewards = np.load(ave_rewards_path).to_list()
+        except:
+            episode_rewards = list()
+            ave_rewards = list()
 
     if training_mode:
         for episode in range(1, episodes):
@@ -54,13 +62,16 @@ def main():
 
             if episode % 10 == 0:
                 agent.save_checkpoint(episode)
+                np.save(rewards_path, np.array(episode_rewards))
+                np.save(ave_rewards_path, np.array(ave_rewards))
 
         writer.flush()
         agent.save(model_path)
-        np.save(f'episode_rewards_batch{batch_size}_rate{update_rate}.npy', np.array(episode_rewards))
-        np.save(f'ave_rewards_batch{batch_size}_rate{update_rate}.npy', np.array(ave_rewards))
     else:
-        agent.demo(model_path)
+        if len(sys.argv) >= 2 and os.path.exists(sys.argv[1]):
+            agent.demo(sys.argv[1])
+        else:
+            sys.exit('Please specify the model file.')
 
     env.close()
 
