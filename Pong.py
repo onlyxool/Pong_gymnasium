@@ -28,7 +28,7 @@ def main():
     if not training_mode:
         env.metadata['render_fps'] = 60
 
-    model_path = f'model/pong_batch{batch_size}_rate{update_rate}_ep{episodes}.pth'
+    model_path = f'model/pong_batch{batch_size}_rate{update_rate}_ep{episodes}.'
     rewards_path = f'model/episode_rewards_batch{batch_size}_rate{update_rate}.npy'
     ave_rewards_path = f'model/ave_rewards_batch{batch_size}_rate{update_rate}.npy'
     writer = SummaryWriter()
@@ -66,7 +66,8 @@ def main():
                 np.save(ave_rewards_path, np.array(ave_rewards))
 
         writer.flush()
-        agent.save(model_path)
+        agent.save(model_path+'pth')
+        agetn.export_onnx(model_path+'onnx')
     else:
         if len(sys.argv) >= 2 and os.path.exists(sys.argv[1]):
             agent.demo(sys.argv[1])

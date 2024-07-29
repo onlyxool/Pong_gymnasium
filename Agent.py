@@ -161,3 +161,8 @@ class Agent:
         self.replay_memory = checkpoint['replay_memory']
         self.epsilon = checkpoint['epsilon']
         return checkpoint['episode']
+
+
+    def export_onnx(self, model_path):
+        onnx_model = torch.onnx.dynamo_export(self.model, torch.randn(1, 4, 84, 80))
+        onnx_model.save(model_path)
