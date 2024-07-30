@@ -7,7 +7,7 @@ The solution for the ALE/Pong-v5 gymnasium environment
 Install library
 
 ```bash
-pip install gymnasium tensorboard collections pygame onnxscript numpy==1.26.4
+pip install gymnasium tensorboard collections onnx onnxscript numpy==1.26.4
 pip install gymnasium[atari, accept-rom-licesnse]
 ```
 
