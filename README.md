@@ -26,5 +26,5 @@ python Pong.py train 1000
 Test
 
 ```bash
-python Pong.py
+python Pong.py /path/to/model.pth
 ```
