@@ -21,7 +21,7 @@ epsilon_init = 1.0
 
 def main():
     training_mode = True if len(sys.argv) >= 2 and sys.argv[1] == 'train' else False
-    episodes = int(sys.argv[2]) if training_mode else 5
+    episodes = int(sys.argv[2]) if training_mode else 1
     env = FrameStack(gym.make('ALE/Pong-v5', render_mode='rgb_array' if training_mode else 'human'), num_stack=4)
     if not training_mode:
         env.metadata['render_fps'] = 60
@@ -61,10 +61,10 @@ def main():
                 if len(agent.replay_memory) >= update_rate:
                     agent.update_weights()
 
-            if episode % 10 == 0:
-                agent.save_checkpoint(episode)
+            if episode % 50 == 0:
                 np.save(rewards_path, np.array(episode_rewards))
                 np.save(ave_rewards_path, np.array(ave_rewards))
+                agent.save_checkpoint(episode)
 
         writer.flush()
         model_path = f'model/pong_batch{batch_size}_rate{update_rate}_ep{len(episode_rewards)}.'
