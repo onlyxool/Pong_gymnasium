@@ -149,7 +149,7 @@ class Agent:
             'replay_memory': self.replay_memory,
             'epsilon': self.epsilon
         }
-        torch.save(checkpoint, f'model/checkpoint.pth')
+        torch.save(checkpoint, 'model/checkpoint.pt')
         print(f'Checkpoint saved at episode {episode}')
 
 
